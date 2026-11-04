@@ -18,15 +18,21 @@ const clips = [
   { time: '01:29', score: '99%', label: 'Top moment' }
 ];
 
+function formatFileSize(bytes) {
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
+
 function EditingShowcase() {
   return (
     <section className="showcase-section">
       <div className="section-heading">
         <span>✦ EXPERIENCE DIMAS AI</span>
         <h2>From long videos to amazing content.</h2>
-        <p>
-          Watch how DIMAS transforms your creative workflow.
-        </p>
+        <p>Watch how DIMAS transforms your creative workflow.</p>
       </div>
 
       <div className="editing-showcase">
@@ -43,22 +49,17 @@ function EditingShowcase() {
             <div className="video-glow" />
             <div className="video-orb" />
             <div className="video-scan" />
-            <div className="video-caption">
-              ORIGINAL VIDEO PREVIEW
-            </div>
+            <div className="video-caption">ORIGINAL VIDEO PREVIEW</div>
             <div className="video-time">12:48</div>
           </div>
 
           <div className="analysis-panel">
-            <div className="panel-label">
-              DIMAS AI ANALYSIS ✦
-            </div>
+            <div className="panel-label">DIMAS AI ANALYSIS ✦</div>
             <div className="analysis-title">
               Finding the best moments
             </div>
             <p className="analysis-description">
-              AI analyzes the video and identifies
-              potential highlights.
+              AI analyzes the video and identifies potential highlights.
             </p>
 
             <div className="analysis-progress">
@@ -98,7 +99,7 @@ function EditingShowcase() {
         </div>
 
         <div className="generated-clips">
-          {clips.map((clip, index) => (
+          {clips.map((clip) => (
             <article className="generated-card" key={clip.time}>
               <div className="generated-thumb" />
               <strong>{clip.label}</strong>
@@ -115,6 +116,8 @@ function App() {
   const [activeTool, setActiveTool] = useState('AI Assistant');
   const [prompt, setPrompt] = useState('');
   const [message, setMessage] = useState('');
+  const [videoFile, setVideoFile] = useState(null);
+  const [uploadError, setUploadError] = useState('');
 
   const handleSubmit = () => {
     if (!prompt.trim()) {
@@ -125,6 +128,35 @@ function App() {
     setMessage(
       `${activeTool} request received by the DIMAS interface. AI execution will be connected in a future step.`
     );
+  };
+
+  const handleVideoChange = (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    const validVideo =
+      file.type.startsWith('video/') ||
+      /\.(mp4|mov|webm|mkv|avi|m4v)$/i.test(file.name);
+
+    if (!validVideo) {
+      setUploadError('Please select a valid video file.');
+      setVideoFile(null);
+      event.target.value = '';
+      return;
+    }
+
+    setUploadError('');
+    setVideoFile(file);
+    setMessage('Video selected successfully. Ready for the upload integration.');
+  };
+
+  const clearVideo = () => {
+    setVideoFile(null);
+    setUploadError('');
+
+    const input = document.getElementById('dimas-video-upload');
+    if (input) input.value = '';
   };
 
   return (
@@ -217,9 +249,7 @@ function App() {
                 <button
                   key={tool.name}
                   className={
-                    activeTool === tool.name
-                      ? 'tool active'
-                      : 'tool'
+                    activeTool === tool.name ? 'tool active' : 'tool'
                   }
                   onClick={() => {
                     setActiveTool(tool.name);
@@ -230,6 +260,110 @@ function App() {
                 </button>
               ))}
             </div>
+
+            {activeTool === 'AI Clipper' && (
+              <div
+                style={{
+                  marginTop: 25,
+                  padding: 22,
+                  border: '1px solid rgba(150, 120, 255, 0.3)',
+                  borderRadius: 18,
+                  background: 'rgba(120, 90, 200, 0.08)',
+                  textAlign: 'left'
+                }}
+              >
+                <div style={{ marginBottom: 8, fontWeight: 700 }}>
+                  ✦ DIMAS AI CLIPPER
+                </div>
+
+                <h3 style={{ marginBottom: 8 }}>
+                  Turn long videos into engaging Shorts.
+                </h3>
+
+                <p style={{ marginBottom: 18, opacity: 0.75 }}>
+                  Select a long-form video. DIMAS will eventually
+                  analyze it and identify the best moments for
+                  short-form content.
+                </p>
+
+                <label
+                  htmlFor="dimas-video-upload"
+                  style={{
+                    display: 'block',
+                    padding: '25px 15px',
+                    border: '1px dashed rgba(170, 145, 255, 0.65)',
+                    borderRadius: 14,
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    background: 'rgba(130, 100, 220, 0.07)'
+                  }}
+                >
+                  <div style={{ fontSize: 30, marginBottom: 10 }}>↑</div>
+                  <strong>Choose a video from your device</strong>
+                  <p style={{ fontSize: 13, opacity: 0.7, marginTop: 8 }}>
+                    MP4, MOV, WebM, MKV and other video formats
+                  </p>
+                  <input
+                    id="dimas-video-upload"
+                    type="file"
+                    accept="video/*,.mkv,.avi,.m4v"
+                    onChange={handleVideoChange}
+                    style={{
+                      position: 'absolute',
+                      width: 1,
+                      height: 1,
+                      opacity: 0,
+                      overflow: 'hidden'
+                    }}
+                  />
+                </label>
+
+                {uploadError && (
+                  <p style={{ color: '#ff7777', marginTop: 12 }}>
+                    {uploadError}
+                  </p>
+                )}
+
+                {videoFile && (
+                  <div
+                    style={{
+                      marginTop: 18,
+                      padding: 14,
+                      borderRadius: 12,
+                      background: 'rgba(120, 100, 180, 0.15)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 12,
+                      flexWrap: 'wrap'
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <strong style={{ overflowWrap: 'anywhere' }}>
+                        🎬 {videoFile.name}
+                      </strong>
+                      <p style={{ fontSize: 13, opacity: 0.7 }}>
+                        {formatFileSize(videoFile.size)}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={clearVideo}
+                      className="secondary-button"
+                      style={{ cursor: 'pointer' }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+
+                <p style={{ fontSize: 12, opacity: 0.6, marginTop: 15 }}>
+                  Local selection only. Server upload and AI processing
+                  are not connected yet.
+                </p>
+              </div>
+            )}
 
             <p className="workspace-message" aria-live="polite">
               {message}
