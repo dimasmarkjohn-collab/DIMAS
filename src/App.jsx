@@ -19,10 +19,7 @@ const clips = [
 ];
 
 function formatFileSize(bytes) {
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
-
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
@@ -55,17 +52,11 @@ function EditingShowcase() {
 
           <div className="analysis-panel">
             <div className="panel-label">DIMAS AI ANALYSIS ✦</div>
-            <div className="analysis-title">
-              Finding the best moments
-            </div>
+            <div className="analysis-title">Finding the best moments</div>
             <p className="analysis-description">
               AI analyzes the video and identifies potential highlights.
             </p>
-
-            <div className="analysis-progress">
-              <span />
-            </div>
-
+            <div className="analysis-progress"><span /></div>
             <div className="analysis-stats">
               <div className="analysis-stat">
                 <strong>98%</strong>
@@ -84,7 +75,6 @@ function EditingShowcase() {
             <strong>AI EDITING TIMELINE</strong>
             <span>GENERATED HIGHLIGHTS</span>
           </div>
-
           <div className="timeline-track">
             <div className="timeline-clip" />
             <div className="timeline-clip" />
@@ -97,7 +87,6 @@ function EditingShowcase() {
         <div className="panel-label" style={{ marginTop: 18 }}>
           ✦ AI GENERATED CLIPS
         </div>
-
         <div className="generated-clips">
           {clips.map((clip) => (
             <article className="generated-card" key={clip.time}>
@@ -119,6 +108,8 @@ function App() {
 
   const [videoFile, setVideoFile] = useState(null);
   const [uploadError, setUploadError] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState(null);
 
   const [videoUrl, setVideoUrl] = useState('');
   const [submittedUrl, setSubmittedUrl] = useState('');
@@ -131,13 +122,12 @@ function App() {
     }
 
     setMessage(
-      `${activeTool} request received by the DIMAS interface. AI execution will be connected in a future step.`
+      `${activeTool} request received. AI execution will be connected in a future step.`
     );
   };
 
   const handleVideoChange = (event) => {
     const file = event.target.files?.[0];
-
     if (!file) return;
 
     const validVideo =
@@ -152,21 +142,55 @@ function App() {
     }
 
     setUploadError('');
+    setUploadResult(null);
     setVideoFile(file);
     setSubmittedUrl('');
     setVideoUrl('');
-
-    setMessage(
-      'Video selected successfully. Ready for the upload integration.'
-    );
+    setMessage('Video selected. Ready to upload to DIMAS.');
   };
 
   const clearVideo = () => {
     setVideoFile(null);
     setUploadError('');
+    setUploadResult(null);
 
     const input = document.getElementById('dimas-video-upload');
     if (input) input.value = '';
+  };
+
+  const handleVideoUpload = async () => {
+    if (!videoFile || uploading) return;
+
+    setUploading(true);
+    setUploadError('');
+    setUploadResult(null);
+    setMessage('Uploading your video to DIMAS...');
+
+    try {
+      const formData = new FormData();
+      formData.append('video', videoFile);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Video upload failed.');
+      }
+
+      setUploadResult(data.video);
+      setMessage('Your video was successfully received by DIMAS!');
+    } catch (error) {
+      setUploadError(
+        error.message || 'Could not connect to the DIMAS backend.'
+      );
+      setMessage('Video upload failed.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleUrlSubmit = () => {
@@ -187,10 +211,8 @@ function App() {
       setUrlError('');
       setSubmittedUrl(parsedUrl.href);
       setVideoFile(null);
-
-      setMessage(
-        'Video link accepted by the DIMAS interface. Source retrieval is not connected yet.'
-      );
+      setUploadResult(null);
+      setMessage('Video link accepted. Source retrieval is not connected yet.');
     } catch {
       setUrlError('Please enter a valid video URL starting with https://');
       setSubmittedUrl('');
@@ -220,17 +242,13 @@ function App() {
 
         <div className="nav-actions">
           <a href="#login" className="login-link">Log in</a>
-          <a href="#workspace" className="primary-button">
-            Start for free ↗
-          </a>
+          <a href="#workspace" className="primary-button">Start for free ↗</a>
         </div>
       </header>
 
       <main id="home">
         <section className="hero">
-          <div className="eyebrow">
-            ✦ YOUR ALL-IN-ONE CREATOR ECOSYSTEM
-          </div>
+          <div className="eyebrow">✦ YOUR ALL-IN-ONE CREATOR ECOSYSTEM</div>
 
           <h1>
             <span>ALL-IN-ONE AI</span>
@@ -244,12 +262,8 @@ function App() {
           </p>
 
           <div className="hero-buttons">
-            <a href="#workspace" className="primary-button">
-              Get started free →
-            </a>
-            <a href="#tools" className="secondary-button">
-              Explore DIMAS tools
-            </a>
+            <a href="#workspace" className="primary-button">Get started free →</a>
+            <a href="#tools" className="secondary-button">Explore DIMAS tools</a>
           </div>
 
           <p className="free-note">
@@ -258,10 +272,7 @@ function App() {
 
           <section className="workspace" id="workspace">
             <div className="prompt-box">
-              <label htmlFor="prompt">
-                What would you like to create today?
-              </label>
-
+              <label htmlFor="prompt">What would you like to create today?</label>
               <textarea
                 id="prompt"
                 value={prompt}
@@ -277,11 +288,7 @@ function App() {
               <button
                 type="button"
                 className="primary-button"
-                style={{
-                  border: 0,
-                  cursor: 'pointer',
-                  marginTop: 15
-                }}
+                style={{ border: 0, cursor: 'pointer', marginTop: 15 }}
                 onClick={handleSubmit}
               >
                 Generate with DIMAS ✦
@@ -292,9 +299,7 @@ function App() {
               {tools.map((tool) => (
                 <button
                   key={tool.name}
-                  className={
-                    activeTool === tool.name ? 'tool active' : 'tool'
-                  }
+                  className={activeTool === tool.name ? 'tool active' : 'tool'}
                   onClick={() => {
                     setActiveTool(tool.name);
                     setMessage(`${tool.name} selected.`);
@@ -326,14 +331,11 @@ function App() {
 
                 <p style={{ marginBottom: 18, opacity: 0.75 }}>
                   Upload a long-form video or paste a video link.
-                  DIMAS will eventually analyze it and identify
-                  the best moments for short-form content.
+                  DIMAS will eventually analyze it and identify the best moments.
                 </p>
 
-                {/* VIDEO FILE UPLOAD */}
-
                 <div style={{ marginBottom: 12, fontWeight: 600 }}>
-                  <span>① Upload from your device</span>
+                  ① Upload from your device
                 </div>
 
                 <label
@@ -409,7 +411,46 @@ function App() {
                   </div>
                 )}
 
-                {/* LINK INPUT */}
+                {videoFile && !uploadResult && (
+                  <button
+                    type="button"
+                    className="primary-button"
+                    onClick={handleVideoUpload}
+                    disabled={uploading}
+                    style={{
+                      border: 0,
+                      cursor: uploading ? 'wait' : 'pointer',
+                      marginTop: 15,
+                      opacity: uploading ? 0.65 : 1
+                    }}
+                  >
+                    {uploading ? 'Uploading...' : 'Upload to DIMAS ↑'}
+                  </button>
+                )}
+
+                {uploadResult && (
+                  <div
+                    style={{
+                      marginTop: 16,
+                      padding: 14,
+                      borderRadius: 12,
+                      background: 'rgba(40, 180, 110, 0.12)',
+                      border: '1px solid rgba(40, 180, 110, 0.35)',
+                      overflowWrap: 'anywhere'
+                    }}
+                  >
+                    <strong>✓ Video uploaded successfully!</strong>
+                    <p style={{ fontSize: 13, marginTop: 8 }}>
+                      Filename: {uploadResult.filename}
+                    </p>
+                    <p style={{ fontSize: 13 }}>
+                      File ID: {uploadResult.id}
+                    </p>
+                    <p style={{ fontSize: 13 }}>
+                      Size: {formatFileSize(uploadResult.size)}
+                    </p>
+                  </div>
+                )}
 
                 <div
                   style={{
@@ -426,16 +467,10 @@ function App() {
                 </div>
 
                 <div style={{ marginBottom: 12, fontWeight: 600 }}>
-                  <span>② Paste a video link</span>
+                  ② Paste a video link
                 </div>
 
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: 10,
-                    flexWrap: 'wrap'
-                  }}
-                >
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                   <input
                     type="url"
                     value={videoUrl}
@@ -465,20 +500,14 @@ function App() {
                     type="button"
                     className="primary-button"
                     onClick={handleUrlSubmit}
-                    style={{
-                      border: 0,
-                      cursor: 'pointer',
-                      padding: '12px 18px'
-                    }}
+                    style={{ border: 0, cursor: 'pointer', padding: '12px 18px' }}
                   >
                     Add link ↗
                   </button>
                 </div>
 
                 {urlError && (
-                  <p style={{ color: '#ff7777', marginTop: 12 }}>
-                    {urlError}
-                  </p>
+                  <p style={{ color: '#ff7777', marginTop: 12 }}>{urlError}</p>
                 )}
 
                 {submittedUrl && (
@@ -495,7 +524,6 @@ function App() {
                     <p style={{ fontSize: 13, marginTop: 8, opacity: 0.8 }}>
                       {submittedUrl}
                     </p>
-
                     <button
                       type="button"
                       className="secondary-button"
@@ -508,16 +536,13 @@ function App() {
                 )}
 
                 <p style={{ fontSize: 12, opacity: 0.6, marginTop: 18 }}>
-                  File selection and link validation are currently
-                  local interface features. Server uploads, video
-                  retrieval and AI processing are not connected yet.
+                  Local video uploads now connect to the development backend.
+                  Video link retrieval and AI processing are not connected yet.
                 </p>
               </div>
             )}
 
-            <p className="workspace-message" aria-live="polite">
-              {message}
-            </p>
+            <p className="workspace-message" aria-live="polite">{message}</p>
           </section>
 
           <div className="trust-section">
@@ -551,8 +576,7 @@ function App() {
                 <div className="card-icon">{tool.icon}</div>
                 <h3>{tool.name}</h3>
                 <p>
-                  Powerful creative tools designed
-                  to make your workflow easier.
+                  Powerful creative tools designed to make your workflow easier.
                 </p>
               </article>
             ))}
