@@ -11,6 +11,159 @@ const tools = [
   { icon: '➤', name: 'Auto Publisher' }
 ];
 
+const clips = [
+  { time: '00:12', score: '98%', label: 'Best moment' },
+  { time: '00:38', score: '96%', label: 'Highlight' },
+  { time: '01:04', score: '94%', label: 'Key moment' },
+  { time: '01:29', score: '99%', label: 'Top moment' }
+];
+
+function EditingShowcase() {
+  return (
+    <section className="showcase-section">
+      <div className="section-heading">
+        <span>✦ EXPERIENCE DIMAS AI</span>
+        <h2>From long videos to amazing content.</h2>
+        <p>
+          Watch how DIMAS transforms your creative workflow.
+        </p>
+      </div>
+
+      <div className="editing-showcase">
+
+        <div className="showcase-topbar">
+          <div className="showcase-brand">
+            <span className="mini-logo">▶</span>
+            DIMAS AI STUDIO
+          </div>
+          <span className="live-status">
+            <i /> AI PROCESSING
+          </span>
+        </div>
+
+        <div className="editing-layout">
+
+          <div className="video-panel">
+            <div className="panel-label">
+              <span>ORIGINAL VIDEO</span>
+              <span>16:9 SOURCE</span>
+            </div>
+
+            <div className="video-screen">
+              <div className="video-scene">
+                <div className="scene-glow" />
+                <div className="scene-person">▶</div>
+                <div className="scene-caption">
+                  ORIGINAL VIDEO PREVIEW
+                </div>
+              </div>
+
+              <div className="scan-line" />
+
+              <div className="video-play">▶</div>
+              <span className="video-duration">12:48</span>
+            </div>
+
+            <div className="video-controls">
+              <span>▶</span>
+              <div className="video-progress">
+                <i />
+              </div>
+              <span>02:34 / 12:48</span>
+            </div>
+          </div>
+
+          <div className="analysis-panel">
+            <div className="panel-label">
+              <span>DIMAS AI ANALYSIS</span>
+              <span className="analysis-icon">✦</span>
+            </div>
+
+            <div className="analysis-content">
+              <div className="ai-orb">✦</div>
+              <h3>Finding the best moments</h3>
+              <p>
+                AI analyzes the video and identifies
+                potential highlights.
+              </p>
+
+              <div className="analysis-step">
+                <span>Video analysis</span>
+                <strong>Complete</strong>
+              </div>
+              <div className="analysis-step">
+                <span>Highlight detection</span>
+                <strong>Complete</strong>
+              </div>
+              <div className="analysis-step">
+                <span>Clip generation</span>
+                <strong className="processing">Processing...</strong>
+              </div>
+
+              <div className="analysis-bar">
+                <i />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="timeline-panel">
+          <div className="timeline-heading">
+            <span>AI EDITING TIMELINE</span>
+            <span>GENERATED HIGHLIGHTS</span>
+          </div>
+
+          <div className="timeline-track">
+            <div className="timeline-base" />
+            <div className="timeline-progress" />
+            <div className="timeline-playhead" />
+            <div className="timeline-segment one" />
+            <div className="timeline-segment two" />
+            <div className="timeline-segment three" />
+            <div className="timeline-segment four" />
+          </div>
+
+          <div className="timeline-time">
+            <span>00:00</span>
+            <span>03:00</span>
+            <span>06:00</span>
+            <span>09:00</span>
+            <span>12:48</span>
+          </div>
+        </div>
+
+        <div className="generated-heading">
+          <div>
+            <span>✦ AI GENERATED</span>
+            <h3>Your clips are ready</h3>
+          </div>
+          <span className="clip-count">04 CLIPS</span>
+        </div>
+
+        <div className="generated-clips">
+          {clips.map((clip, index) => (
+            <article className="generated-card" key={clip.time}>
+              <div className={`clip-thumbnail clip-${index + 1}`}>
+                <span className="clip-play">▶</span>
+                <span className="clip-time">{clip.time}</span>
+              </div>
+              <div className="clip-details">
+                <strong>{clip.label}</strong>
+                <span>Highlight score · {clip.score}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="showcase-footer">
+          <span>✦ One video. Multiple possibilities.</span>
+          <span>POWERED BY DIMAS</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function App() {
   const [activeTool, setActiveTool] = useState('AI Assistant');
   const [prompt, setPrompt] = useState('');
@@ -22,7 +175,9 @@ function App() {
       return;
     }
 
-    setMessage('DIMAS AI will be connected in a future development phase.');
+    setMessage(
+      'DIMAS AI will be connected in a future development phase.'
+    );
   };
 
   return (
@@ -131,6 +286,8 @@ function App() {
             </div>
           </div>
         </section>
+
+        <EditingShowcase />
 
         <section className="tools-section" id="tools">
           <div className="section-heading">
