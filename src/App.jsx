@@ -116,8 +116,13 @@ function App() {
   const [activeTool, setActiveTool] = useState('AI Assistant');
   const [prompt, setPrompt] = useState('');
   const [message, setMessage] = useState('');
+
   const [videoFile, setVideoFile] = useState(null);
   const [uploadError, setUploadError] = useState('');
+
+  const [videoUrl, setVideoUrl] = useState('');
+  const [submittedUrl, setSubmittedUrl] = useState('');
+  const [urlError, setUrlError] = useState('');
 
   const handleSubmit = () => {
     if (!prompt.trim()) {
@@ -148,7 +153,12 @@ function App() {
 
     setUploadError('');
     setVideoFile(file);
-    setMessage('Video selected successfully. Ready for the upload integration.');
+    setSubmittedUrl('');
+    setVideoUrl('');
+
+    setMessage(
+      'Video selected successfully. Ready for the upload integration.'
+    );
   };
 
   const clearVideo = () => {
@@ -157,6 +167,40 @@ function App() {
 
     const input = document.getElementById('dimas-video-upload');
     if (input) input.value = '';
+  };
+
+  const handleUrlSubmit = () => {
+    const trimmedUrl = videoUrl.trim();
+
+    if (!trimmedUrl) {
+      setUrlError('Please paste a video link first.');
+      return;
+    }
+
+    try {
+      const parsedUrl = new URL(trimmedUrl);
+
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+        throw new Error('Invalid protocol');
+      }
+
+      setUrlError('');
+      setSubmittedUrl(parsedUrl.href);
+      setVideoFile(null);
+
+      setMessage(
+        'Video link accepted by the DIMAS interface. Source retrieval is not connected yet.'
+      );
+    } catch {
+      setUrlError('Please enter a valid video URL starting with https://');
+      setSubmittedUrl('');
+    }
+  };
+
+  const clearUrl = () => {
+    setVideoUrl('');
+    setSubmittedUrl('');
+    setUrlError('');
   };
 
   return (
@@ -281,10 +325,16 @@ function App() {
                 </h3>
 
                 <p style={{ marginBottom: 18, opacity: 0.75 }}>
-                  Select a long-form video. DIMAS will eventually
-                  analyze it and identify the best moments for
-                  short-form content.
+                  Upload a long-form video or paste a video link.
+                  DIMAS will eventually analyze it and identify
+                  the best moments for short-form content.
                 </p>
+
+                {/* VIDEO FILE UPLOAD */}
+
+                <div style={{ marginBottom: 12, fontWeight: 600 }}>
+                  <span>① Upload from your device</span>
+                </div>
 
                 <label
                   htmlFor="dimas-video-upload"
@@ -303,6 +353,7 @@ function App() {
                   <p style={{ fontSize: 13, opacity: 0.7, marginTop: 8 }}>
                     MP4, MOV, WebM, MKV and other video formats
                   </p>
+
                   <input
                     id="dimas-video-upload"
                     type="file"
@@ -358,9 +409,108 @@ function App() {
                   </div>
                 )}
 
-                <p style={{ fontSize: 12, opacity: 0.6, marginTop: 15 }}>
-                  Local selection only. Server upload and AI processing
-                  are not connected yet.
+                {/* LINK INPUT */}
+
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    margin: '25px 0',
+                    opacity: 0.6
+                  }}
+                >
+                  <div style={{ flex: 1, height: 1, background: 'currentColor' }} />
+                  <span style={{ fontSize: 12 }}>OR</span>
+                  <div style={{ flex: 1, height: 1, background: 'currentColor' }} />
+                </div>
+
+                <div style={{ marginBottom: 12, fontWeight: 600 }}>
+                  <span>② Paste a video link</span>
+                </div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 10,
+                    flexWrap: 'wrap'
+                  }}
+                >
+                  <input
+                    type="url"
+                    value={videoUrl}
+                    onChange={(e) => {
+                      setVideoUrl(e.target.value);
+                      setUrlError('');
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleUrlSubmit();
+                    }}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    aria-label="Video URL"
+                    style={{
+                      flex: '1 1 220px',
+                      minWidth: 0,
+                      padding: '14px 15px',
+                      borderRadius: 10,
+                      border: '1px solid rgba(170, 145, 255, 0.35)',
+                      background: 'rgba(20, 20, 35, 0.65)',
+                      color: 'inherit',
+                      outline: 'none',
+                      fontSize: 14
+                    }}
+                  />
+
+                  <button
+                    type="button"
+                    className="primary-button"
+                    onClick={handleUrlSubmit}
+                    style={{
+                      border: 0,
+                      cursor: 'pointer',
+                      padding: '12px 18px'
+                    }}
+                  >
+                    Add link ↗
+                  </button>
+                </div>
+
+                {urlError && (
+                  <p style={{ color: '#ff7777', marginTop: 12 }}>
+                    {urlError}
+                  </p>
+                )}
+
+                {submittedUrl && (
+                  <div
+                    style={{
+                      marginTop: 16,
+                      padding: 14,
+                      borderRadius: 12,
+                      background: 'rgba(120, 100, 180, 0.15)',
+                      overflowWrap: 'anywhere'
+                    }}
+                  >
+                    <strong>✓ Video link added</strong>
+                    <p style={{ fontSize: 13, marginTop: 8, opacity: 0.8 }}>
+                      {submittedUrl}
+                    </p>
+
+                    <button
+                      type="button"
+                      className="secondary-button"
+                      onClick={clearUrl}
+                      style={{ marginTop: 12, cursor: 'pointer' }}
+                    >
+                      Remove link
+                    </button>
+                  </div>
+                )}
+
+                <p style={{ fontSize: 12, opacity: 0.6, marginTop: 18 }}>
+                  File selection and link validation are currently
+                  local interface features. Server uploads, video
+                  retrieval and AI processing are not connected yet.
                 </p>
               </div>
             )}
