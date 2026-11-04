@@ -35,40 +35,27 @@ function EditingShowcase() {
             <span className="showcase-brand-icon">▶</span>
             DIMAS AI STUDIO
           </div>
-
-          <span className="live-status">
-            AI PROCESSING
-          </span>
+          <span className="live-status">AI PROCESSING</span>
         </div>
 
         <div className="editing-layout">
           <div className="video-panel">
-            <div className="panel-label">
-              ORIGINAL VIDEO · 16:9 SOURCE
-            </div>
-
             <div className="video-glow" />
             <div className="video-orb" />
             <div className="video-scan" />
-
             <div className="video-caption">
               ORIGINAL VIDEO PREVIEW
             </div>
-
-            <div className="video-time">
-              12:48
-            </div>
+            <div className="video-time">12:48</div>
           </div>
 
           <div className="analysis-panel">
             <div className="panel-label">
               DIMAS AI ANALYSIS ✦
             </div>
-
             <div className="analysis-title">
               Finding the best moments
             </div>
-
             <p className="analysis-description">
               AI analyzes the video and identifies
               potential highlights.
@@ -83,7 +70,6 @@ function EditingShowcase() {
                 <strong>98%</strong>
                 <span>Video analysis</span>
               </div>
-
               <div className="analysis-stat">
                 <strong>24</strong>
                 <span>Moments detected</span>
@@ -116,9 +102,7 @@ function EditingShowcase() {
             <article className="generated-card" key={clip.time}>
               <div className="generated-thumb" />
               <strong>{clip.label}</strong>
-              <span>
-                {clip.time} · Score {clip.score}
-              </span>
+              <span>{clip.time} · Score {clip.score}</span>
             </article>
           ))}
         </div>
@@ -134,12 +118,12 @@ function App() {
 
   const handleSubmit = () => {
     if (!prompt.trim()) {
-      setMessage('Describe what you want DIMAS to create.');
+      setMessage('Please describe what you want DIMAS to create.');
       return;
     }
 
     setMessage(
-      'DIMAS AI will be connected in a future development phase.'
+      `${activeTool} request received by the DIMAS interface. AI execution will be connected in a future step.`
     );
   };
 
@@ -159,10 +143,7 @@ function App() {
         </nav>
 
         <div className="nav-actions">
-          <a href="#login" className="login-link">
-            Log in
-          </a>
-
+          <a href="#login" className="login-link">Log in</a>
           <a href="#workspace" className="primary-button">
             Start for free ↗
           </a>
@@ -190,7 +171,6 @@ function App() {
             <a href="#workspace" className="primary-button">
               Get started free →
             </a>
-
             <a href="#tools" className="secondary-button">
               Explore DIMAS tools
             </a>
@@ -217,14 +197,20 @@ function App() {
                 <span>✧ Ask DIMAS to bring your idea to life</span>
                 <span>{activeTool}</span>
               </div>
-            </div>
 
-            <button
-              className="send-button"
-              onClick={handleSubmit}
-            >
-              ✦
-            </button>
+              <button
+                type="button"
+                className="primary-button"
+                style={{
+                  border: 0,
+                  cursor: 'pointer',
+                  marginTop: 15
+                }}
+                onClick={handleSubmit}
+              >
+                Generate with DIMAS ✦
+              </button>
+            </div>
 
             <div className="tool-shortcuts">
               {tools.map((tool) => (
@@ -237,7 +223,7 @@ function App() {
                   }
                   onClick={() => {
                     setActiveTool(tool.name);
-                    setMessage(`${tool.name} selected`);
+                    setMessage(`${tool.name} selected.`);
                   }}
                 >
                   {tool.icon} {tool.name}
@@ -245,14 +231,13 @@ function App() {
               ))}
             </div>
 
-            <p className="workspace-message">
+            <p className="workspace-message" aria-live="polite">
               {message}
             </p>
           </section>
 
           <div className="trust-section">
             <h3>One workspace for every kind of creator</h3>
-
             <div className="trust-items">
               <span>CREATE</span>
               <span>EDIT</span>
@@ -269,9 +254,7 @@ function App() {
         <section className="tools-section" id="tools">
           <div className="section-heading">
             <span>THE DIMAS ECOSYSTEM</span>
-
             <h2>Everything you need to create</h2>
-
             <p>
               A growing collection of creator tools,
               designed to work together in one unified platform.
@@ -281,12 +264,8 @@ function App() {
           <div className="tools-grid">
             {tools.slice(1).map((tool) => (
               <article className="tool-card" key={tool.name}>
-                <div className="card-icon">
-                  {tool.icon}
-                </div>
-
+                <div className="card-icon">{tool.icon}</div>
                 <h3>{tool.name}</h3>
-
                 <p>
                   Powerful creative tools designed
                   to make your workflow easier.
