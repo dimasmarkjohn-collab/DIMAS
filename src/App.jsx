@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 const tools = [
@@ -158,6 +157,7 @@ function App() {
     if (input) input.value = '';
   };
 
+  // Improved upload diagnostics: safely reads text before attempting JSON parsing.
   const handleVideoUpload = async () => {
     if (!videoFile || uploading) return;
 
@@ -175,15 +175,38 @@ function App() {
         body: formData
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+
+      if (!responseText.trim()) {
+        throw new Error(
+          `Backend returned an empty response. HTTP status: ${response.status}`
+        );
+      }
+
+      let data;
+
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        throw new Error(
+          `Backend returned an invalid response. HTTP ${response.status}: ${responseText.slice(0, 250)}`
+        );
+      }
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Video upload failed.');
+        throw new Error(
+          data.message || `Upload failed. HTTP status: ${response.status}`
+        );
+      }
+
+      if (!data.video) {
+        throw new Error('Upload response is missing video information.');
       }
 
       setUploadResult(data.video);
       setMessage('Your video was successfully received by DIMAS!');
     } catch (error) {
+      console.error('DIMAS upload error:', error);
       setUploadError(
         error.message || 'Could not connect to the DIMAS backend.'
       );
