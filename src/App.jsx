@@ -30,134 +30,97 @@ function EditingShowcase() {
       </div>
 
       <div className="editing-showcase">
-
         <div className="showcase-topbar">
           <div className="showcase-brand">
-            <span className="mini-logo">▶</span>
+            <span className="showcase-brand-icon">▶</span>
             DIMAS AI STUDIO
           </div>
+
           <span className="live-status">
-            <i /> AI PROCESSING
+            AI PROCESSING
           </span>
         </div>
 
         <div className="editing-layout">
-
           <div className="video-panel">
             <div className="panel-label">
-              <span>ORIGINAL VIDEO</span>
-              <span>16:9 SOURCE</span>
+              ORIGINAL VIDEO · 16:9 SOURCE
             </div>
 
-            <div className="video-screen">
-              <div className="video-scene">
-                <div className="scene-glow" />
-                <div className="scene-person">▶</div>
-                <div className="scene-caption">
-                  ORIGINAL VIDEO PREVIEW
-                </div>
-              </div>
+            <div className="video-glow" />
+            <div className="video-orb" />
+            <div className="video-scan" />
 
-              <div className="scan-line" />
-
-              <div className="video-play">▶</div>
-              <span className="video-duration">12:48</span>
+            <div className="video-caption">
+              ORIGINAL VIDEO PREVIEW
             </div>
 
-            <div className="video-controls">
-              <span>▶</span>
-              <div className="video-progress">
-                <i />
-              </div>
-              <span>02:34 / 12:48</span>
+            <div className="video-time">
+              12:48
             </div>
           </div>
 
           <div className="analysis-panel">
             <div className="panel-label">
-              <span>DIMAS AI ANALYSIS</span>
-              <span className="analysis-icon">✦</span>
+              DIMAS AI ANALYSIS ✦
             </div>
 
-            <div className="analysis-content">
-              <div className="ai-orb">✦</div>
-              <h3>Finding the best moments</h3>
-              <p>
-                AI analyzes the video and identifies
-                potential highlights.
-              </p>
+            <div className="analysis-title">
+              Finding the best moments
+            </div>
 
-              <div className="analysis-step">
+            <p className="analysis-description">
+              AI analyzes the video and identifies
+              potential highlights.
+            </p>
+
+            <div className="analysis-progress">
+              <span />
+            </div>
+
+            <div className="analysis-stats">
+              <div className="analysis-stat">
+                <strong>98%</strong>
                 <span>Video analysis</span>
-                <strong>Complete</strong>
-              </div>
-              <div className="analysis-step">
-                <span>Highlight detection</span>
-                <strong>Complete</strong>
-              </div>
-              <div className="analysis-step">
-                <span>Clip generation</span>
-                <strong className="processing">Processing...</strong>
               </div>
 
-              <div className="analysis-bar">
-                <i />
+              <div className="analysis-stat">
+                <strong>24</strong>
+                <span>Moments detected</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="timeline-panel">
-          <div className="timeline-heading">
-            <span>AI EDITING TIMELINE</span>
+          <div className="timeline-header">
+            <strong>AI EDITING TIMELINE</strong>
             <span>GENERATED HIGHLIGHTS</span>
           </div>
 
           <div className="timeline-track">
-            <div className="timeline-base" />
-            <div className="timeline-progress" />
+            <div className="timeline-clip" />
+            <div className="timeline-clip" />
+            <div className="timeline-clip" />
+            <div className="timeline-clip" />
             <div className="timeline-playhead" />
-            <div className="timeline-segment one" />
-            <div className="timeline-segment two" />
-            <div className="timeline-segment three" />
-            <div className="timeline-segment four" />
-          </div>
-
-          <div className="timeline-time">
-            <span>00:00</span>
-            <span>03:00</span>
-            <span>06:00</span>
-            <span>09:00</span>
-            <span>12:48</span>
           </div>
         </div>
 
-        <div className="generated-heading">
-          <div>
-            <span>✦ AI GENERATED</span>
-            <h3>Your clips are ready</h3>
-          </div>
-          <span className="clip-count">04 CLIPS</span>
+        <div className="panel-label" style={{ marginTop: 18 }}>
+          ✦ AI GENERATED CLIPS
         </div>
 
         <div className="generated-clips">
           {clips.map((clip, index) => (
             <article className="generated-card" key={clip.time}>
-              <div className={`clip-thumbnail clip-${index + 1}`}>
-                <span className="clip-play">▶</span>
-                <span className="clip-time">{clip.time}</span>
-              </div>
-              <div className="clip-details">
-                <strong>{clip.label}</strong>
-                <span>Highlight score · {clip.score}</span>
-              </div>
+              <div className="generated-thumb" />
+              <strong>{clip.label}</strong>
+              <span>
+                {clip.time} · Score {clip.score}
+              </span>
             </article>
           ))}
-        </div>
-
-        <div className="showcase-footer">
-          <span>✦ One video. Multiple possibilities.</span>
-          <span>POWERED BY DIMAS</span>
         </div>
       </div>
     </section>
@@ -196,7 +159,10 @@ function App() {
         </nav>
 
         <div className="nav-actions">
-          <a href="#login" className="login-link">Log in</a>
+          <a href="#login" className="login-link">
+            Log in
+          </a>
+
           <a href="#workspace" className="primary-button">
             Start for free ↗
           </a>
@@ -224,6 +190,7 @@ function App() {
             <a href="#workspace" className="primary-button">
               Get started free →
             </a>
+
             <a href="#tools" className="secondary-button">
               Explore DIMAS tools
             </a>
@@ -252,7 +219,10 @@ function App() {
               </div>
             </div>
 
-            <button className="send-button" onClick={handleSubmit}>
+            <button
+              className="send-button"
+              onClick={handleSubmit}
+            >
               ✦
             </button>
 
@@ -260,7 +230,11 @@ function App() {
               {tools.map((tool) => (
                 <button
                   key={tool.name}
-                  className={activeTool === tool.name ? 'tool active' : 'tool'}
+                  className={
+                    activeTool === tool.name
+                      ? 'tool active'
+                      : 'tool'
+                  }
                   onClick={() => {
                     setActiveTool(tool.name);
                     setMessage(`${tool.name} selected`);
@@ -271,11 +245,14 @@ function App() {
               ))}
             </div>
 
-            <p className="workspace-message">{message}</p>
+            <p className="workspace-message">
+              {message}
+            </p>
           </section>
 
           <div className="trust-section">
             <h3>One workspace for every kind of creator</h3>
+
             <div className="trust-items">
               <span>CREATE</span>
               <span>EDIT</span>
@@ -292,7 +269,9 @@ function App() {
         <section className="tools-section" id="tools">
           <div className="section-heading">
             <span>THE DIMAS ECOSYSTEM</span>
+
             <h2>Everything you need to create</h2>
+
             <p>
               A growing collection of creator tools,
               designed to work together in one unified platform.
@@ -302,8 +281,12 @@ function App() {
           <div className="tools-grid">
             {tools.slice(1).map((tool) => (
               <article className="tool-card" key={tool.name}>
-                <div className="card-icon">{tool.icon}</div>
+                <div className="card-icon">
+                  {tool.icon}
+                </div>
+
                 <h3>{tool.name}</h3>
+
                 <p>
                   Powerful creative tools designed
                   to make your workflow easier.
