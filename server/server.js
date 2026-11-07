@@ -5,9 +5,10 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
+import { createClient } from '@supabase/supabase-js';
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +19,19 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+// Supabase connection
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+const supabase = supabaseUrl && supabaseKey
+  ? createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
+      }
+    })
+  : null;
+
 app.use(cors());
 app.use(express.json());
 
@@ -27,8 +41,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const extension = path.extname(file.originalname);
-    const filename = `${crypto.randomUUID()}${extension}`;
-    cb(null, filename);
+    cb(null, `${crypto.randomUUID()}${extension}`);
   }
 });
 
@@ -46,7 +59,6 @@ const upload = multer({
   }
 });
 
-// Backend health check
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
@@ -54,8 +66,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Video upload
-app.post('/api/upload', upload.single('video'), (req, res) => {
+// Video upload to Supabase Storage
+app.post('/api/upload', upload.single('video'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({
       success: false,
@@ -63,16 +75,50 @@ app.post('/api/upload', upload.single('video'), (req, res) => {
     });
   }
 
-  res.json({
-    success: true,
-    message: 'Video uploaded successfully!',
-    video: {
-      id: path.parse(req.file.filename).name,
-      filename: req.file.originalname,
-      size: req.file.size,
-      mimetype: req.file.mimetype
+  try {
+    if (!supabase) {
+      return res.status(503).json({
+        success: false,
+        message: 'Supabase is not configured.'
+      });
     }
-  });
+
+    const fileBuffer = await fs.promises.readFile(req.file.path);
+
+    const { data, error } = await supabase.storage
+      .from('dimas-videos')
+      .upload(req.file.filename, fileBuffer, {
+        contentType: req.file.mimetype,
+        upsert: false
+      });
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      message: 'Video uploaded successfully!',
+      video: {
+        id: path.parse(req.file.filename).name,
+        filename: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype,
+        storagePath: data.path
+      }
+    });
+
+  } catch (error) {
+    console.error('Supabase upload error:', error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Video upload failed. Please try again.'
+    });
+
+  } finally {
+    if (req.file?.path) {
+      await fs.promises.unlink(req.file.path).catch(() => {});
+    }
+  }
 });
 
 // Error handling
