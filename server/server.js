@@ -1,3 +1,4 @@
+
 import express from 'express';
 import multer from 'multer';
 import cors from 'cors';
@@ -19,7 +20,6 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Supabase connection
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -66,7 +66,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Video upload to Supabase Storage
 app.post('/api/upload', upload.single('video'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({
@@ -94,7 +93,7 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
 
     if (error) throw error;
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Video uploaded successfully!',
       video: {
@@ -109,7 +108,7 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
   } catch (error) {
     console.error('Supabase upload error:', error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Video upload failed. Please try again.'
     });
@@ -121,7 +120,6 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
   }
 });
 
-// Error handling
 app.use((err, req, res, next) => {
   res.status(400).json({
     success: false,
