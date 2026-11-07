@@ -1,4 +1,7 @@
+
 import React, { useState } from 'react';
+
+const DIMAS_BACKEND_URL = 'https://dimas-backend-d5l9.onrender.com';
 
 const tools = [
   { icon: '✦', name: 'AI Assistant' },
@@ -158,7 +161,6 @@ function App() {
     if (input) input.value = '';
   };
 
-  // Improved upload diagnostics: safely reads text before attempting JSON parsing.
   const handleVideoUpload = async () => {
     if (!videoFile || uploading) return;
 
@@ -171,10 +173,13 @@ function App() {
       const formData = new FormData();
       formData.append('video', videoFile);
 
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      });
+      const response = await fetch(
+        `${DIMAS_BACKEND_URL}/api/upload`,
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
 
       const responseText = await response.text();
 
@@ -457,7 +462,7 @@ function App() {
                 )}
 
                 <p className="clipper-note">
-                  Local video uploads now connect to the development backend.
+                  Video uploads connect to the DIMAS production backend.
                   Video link retrieval and AI processing are not connected yet.
                 </p>
               </div>
