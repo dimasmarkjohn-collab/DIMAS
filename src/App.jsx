@@ -104,6 +104,7 @@ function App() {
   const [activeTool, setActiveTool] = useState('AI Assistant');
   const [prompt, setPrompt] = useState('');
   const [message, setMessage] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const [videoFile, setVideoFile] = useState(null);
   const [uploadError, setUploadError] = useState('');
@@ -250,22 +251,39 @@ function App() {
 
   return (
     <div className="app">
-      <header className="navbar">
+      <div className="ambient" aria-hidden="true">
+        <i /><i /><i /><b />
+      </div>
+
+      <header className={menuOpen ? 'navbar is-open' : 'navbar'}>
         <a className="logo" href="#home">
           <span className="logo-icon">▶</span>
           DIMAS
         </a>
 
-        <nav>
-          <a href="#tools">Creator Platform</a>
-          <a href="#workspace">AI</a>
-          <a href="#tools">Tools</a>
-          <a href="#about">About</a>
-        </nav>
+        <button
+          type="button"
+          className="nav-toggle"
+          aria-label="Toggle navigation menu"
+          aria-expanded={menuOpen}
+          aria-controls="primary-nav"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <span /><span />
+        </button>
 
-        <div className="nav-actions">
-          <a href="#login" className="login-link">Log in</a>
-          <a href="#workspace" className="primary-button">Start for free ↗</a>
+        <div className="nav-menu" id="primary-nav" onClick={() => setMenuOpen(false)}>
+          <nav>
+            <a href="#tools">Creator Platform</a>
+            <a href="#workspace">AI</a>
+            <a href="#tools">Tools</a>
+            <a href="#about">About</a>
+          </nav>
+
+          <div className="nav-actions">
+            <a href="#login" className="login-link">Log in</a>
+            <a href="#workspace" className="primary-button">Start for free ↗</a>
+          </div>
         </div>
       </header>
 
@@ -311,7 +329,6 @@ function App() {
               <button
                 type="button"
                 className="primary-button"
-                style={{ border: 0, cursor: 'pointer', marginTop: 15 }}
                 onClick={handleSubmit}
               >
                 Generate with DIMAS ✦
@@ -334,101 +351,40 @@ function App() {
             </div>
 
             {activeTool === 'AI Clipper' && (
-              <div
-                style={{
-                  marginTop: 25,
-                  padding: 22,
-                  border: '1px solid rgba(150, 120, 255, 0.3)',
-                  borderRadius: 18,
-                  background: 'rgba(120, 90, 200, 0.08)',
-                  textAlign: 'left'
-                }}
-              >
-                <div style={{ marginBottom: 8, fontWeight: 700 }}>
-                  ✦ DIMAS AI CLIPPER
-                </div>
-
-                <h3 style={{ marginBottom: 8 }}>
-                  Turn long videos into engaging Shorts.
-                </h3>
-
-                <p style={{ marginBottom: 18, opacity: 0.75 }}>
+              <div className="clipper">
+                <div className="clipper-kicker">✦ DIMAS AI CLIPPER</div>
+                <h3 className="clipper-title">Turn long videos into engaging Shorts.</h3>
+                <p className="clipper-lead">
                   Upload a long-form video or paste a video link.
                   DIMAS will eventually analyze it and identify the best moments.
                 </p>
 
-                <div style={{ marginBottom: 12, fontWeight: 600 }}>
-                  ① Upload from your device
-                </div>
+                <div className="step-label"><b>1</b> Upload from your device</div>
 
-                <label
-                  htmlFor="dimas-video-upload"
-                  style={{
-                    display: 'block',
-                    padding: '25px 15px',
-                    border: '1px dashed rgba(170, 145, 255, 0.65)',
-                    borderRadius: 14,
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    background: 'rgba(130, 100, 220, 0.07)'
-                  }}
-                >
-                  <div style={{ fontSize: 30, marginBottom: 10 }}>↑</div>
+                <label htmlFor="dimas-video-upload" className="dropzone">
+                  <span className="dropzone-icon" aria-hidden="true">↑</span>
                   <strong>Choose a video from your device</strong>
-                  <p style={{ fontSize: 13, opacity: 0.7, marginTop: 8 }}>
+                  <span className="dropzone-hint">
                     MP4, MOV, WebM, MKV and other video formats
-                  </p>
-
+                  </span>
                   <input
                     id="dimas-video-upload"
+                    className="file-input"
                     type="file"
                     accept="video/*,.mkv,.avi,.m4v"
                     onChange={handleVideoChange}
-                    style={{
-                      position: 'absolute',
-                      width: 1,
-                      height: 1,
-                      opacity: 0,
-                      overflow: 'hidden'
-                    }}
                   />
                 </label>
 
-                {uploadError && (
-                  <p style={{ color: '#ff7777', marginTop: 12 }}>
-                    {uploadError}
-                  </p>
-                )}
+                {uploadError && <p className="form-error" role="alert">{uploadError}</p>}
 
                 {videoFile && (
-                  <div
-                    style={{
-                      marginTop: 18,
-                      padding: 14,
-                      borderRadius: 12,
-                      background: 'rgba(120, 100, 180, 0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: 12,
-                      flexWrap: 'wrap'
-                    }}
-                  >
-                    <div style={{ minWidth: 0 }}>
-                      <strong style={{ overflowWrap: 'anywhere' }}>
-                        🎬 {videoFile.name}
-                      </strong>
-                      <p style={{ fontSize: 13, opacity: 0.7 }}>
-                        {formatFileSize(videoFile.size)}
-                      </p>
+                  <div className="file-chip">
+                    <div className="file-meta">
+                      <strong className="file-name">🎬 {videoFile.name}</strong>
+                      <span className="file-size">{formatFileSize(videoFile.size)}</span>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={clearVideo}
-                      className="secondary-button"
-                      style={{ cursor: 'pointer' }}
-                    >
+                    <button type="button" onClick={clearVideo} className="secondary-button">
                       Remove
                     </button>
                   </div>
@@ -437,64 +393,40 @@ function App() {
                 {videoFile && !uploadResult && (
                   <button
                     type="button"
-                    className="primary-button"
+                    className="primary-button upload-button"
                     onClick={handleVideoUpload}
                     disabled={uploading}
-                    style={{
-                      border: 0,
-                      cursor: uploading ? 'wait' : 'pointer',
-                      marginTop: 15,
-                      opacity: uploading ? 0.65 : 1
-                    }}
                   >
-                    {uploading ? 'Uploading...' : 'Upload to DIMAS ↑'}
+                    {uploading ? (
+                      <><span className="spinner" aria-hidden="true" />Uploading...</>
+                    ) : (
+                      'Upload to DIMAS ↑'
+                    )}
                   </button>
                 )}
 
-                {uploadResult && (
-                  <div
-                    style={{
-                      marginTop: 16,
-                      padding: 14,
-                      borderRadius: 12,
-                      background: 'rgba(40, 180, 110, 0.12)',
-                      border: '1px solid rgba(40, 180, 110, 0.35)',
-                      overflowWrap: 'anywhere'
-                    }}
-                  >
-                    <strong>✓ Video uploaded successfully!</strong>
-                    <p style={{ fontSize: 13, marginTop: 8 }}>
-                      Filename: {uploadResult.filename}
-                    </p>
-                    <p style={{ fontSize: 13 }}>
-                      File ID: {uploadResult.id}
-                    </p>
-                    <p style={{ fontSize: 13 }}>
-                      Size: {formatFileSize(uploadResult.size)}
-                    </p>
+                {uploading && (
+                  <div className="upload-progress" role="status" aria-label="Uploading">
+                    <span />
                   </div>
                 )}
 
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    margin: '25px 0',
-                    opacity: 0.6
-                  }}
-                >
-                  <div style={{ flex: 1, height: 1, background: 'currentColor' }} />
-                  <span style={{ fontSize: 12 }}>OR</span>
-                  <div style={{ flex: 1, height: 1, background: 'currentColor' }} />
-                </div>
+                {uploadResult && (
+                  <div className="upload-success" role="status">
+                    <strong>✓ Video uploaded successfully!</strong>
+                    <p>Filename: {uploadResult.filename}</p>
+                    <p>File ID: {uploadResult.id}</p>
+                    <p>Size: {formatFileSize(uploadResult.size)}</p>
+                  </div>
+                )}
 
-                <div style={{ marginBottom: 12, fontWeight: 600 }}>
-                  ② Paste a video link
-                </div>
+                <div className="divider"><span>OR</span></div>
 
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <div className="step-label"><b>2</b> Paste a video link</div>
+
+                <div className="link-row">
                   <input
+                    className="url-input"
                     type="url"
                     value={videoUrl}
                     onChange={(e) => {
@@ -506,59 +438,25 @@ function App() {
                     }}
                     placeholder="https://www.youtube.com/watch?v=..."
                     aria-label="Video URL"
-                    style={{
-                      flex: '1 1 220px',
-                      minWidth: 0,
-                      padding: '14px 15px',
-                      borderRadius: 10,
-                      border: '1px solid rgba(170, 145, 255, 0.35)',
-                      background: 'rgba(20, 20, 35, 0.65)',
-                      color: 'inherit',
-                      outline: 'none',
-                      fontSize: 14
-                    }}
                   />
-
-                  <button
-                    type="button"
-                    className="primary-button"
-                    onClick={handleUrlSubmit}
-                    style={{ border: 0, cursor: 'pointer', padding: '12px 18px' }}
-                  >
+                  <button type="button" className="primary-button" onClick={handleUrlSubmit}>
                     Add link ↗
                   </button>
                 </div>
 
-                {urlError && (
-                  <p style={{ color: '#ff7777', marginTop: 12 }}>{urlError}</p>
-                )}
+                {urlError && <p className="form-error" role="alert">{urlError}</p>}
 
                 {submittedUrl && (
-                  <div
-                    style={{
-                      marginTop: 16,
-                      padding: 14,
-                      borderRadius: 12,
-                      background: 'rgba(120, 100, 180, 0.15)',
-                      overflowWrap: 'anywhere'
-                    }}
-                  >
+                  <div className="link-chip">
                     <strong>✓ Video link added</strong>
-                    <p style={{ fontSize: 13, marginTop: 8, opacity: 0.8 }}>
-                      {submittedUrl}
-                    </p>
-                    <button
-                      type="button"
-                      className="secondary-button"
-                      onClick={clearUrl}
-                      style={{ marginTop: 12, cursor: 'pointer' }}
-                    >
+                    <p>{submittedUrl}</p>
+                    <button type="button" className="secondary-button" onClick={clearUrl}>
                       Remove link
                     </button>
                   </div>
                 )}
 
-                <p style={{ fontSize: 12, opacity: 0.6, marginTop: 18 }}>
+                <p className="clipper-note">
                   Local video uploads now connect to the development backend.
                   Video link retrieval and AI processing are not connected yet.
                 </p>
