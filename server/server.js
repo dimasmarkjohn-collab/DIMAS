@@ -106,7 +106,13 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Supabase upload error:', error);
+    console.error('Supabase upload error:', {
+      message: error.message,
+      status: error.status,
+      code: error.code,
+      details: error.details,
+      hint: error.hint
+    });
 
     return res.status(500).json({
       success: false,
