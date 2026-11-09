@@ -20,8 +20,8 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env.SUPABASE_URL?.trim().replace(/\/+$/, '');
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
 const supabase = supabaseUrl && supabaseKey
   ? createClient(supabaseUrl, supabaseKey, {
@@ -31,6 +31,22 @@ const supabase = supabaseUrl && supabaseKey
       }
     })
   : null;
+
+// Supabase connection diagnostics
+if (supabase) {
+  console.log('[DIMAS] Supabase project URL:', supabaseUrl);
+  console.log(
+    '[DIMAS] Expected Storage endpoint:',
+    `${supabaseUrl}/storage/v1`
+  );
+  console.log(
+    '[DIMAS] SDK Storage endpoint:',
+    supabase.storage.url
+  );
+} else {
+  console.error('[DIMAS] Supabase is not configured.');
+  console.error('[DIMAS] Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.');
+}
 
 app.use(cors());
 app.use(express.json());
@@ -82,6 +98,10 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
       });
     }
 
+    console.log('[DIMAS] Starting upload to bucket: dimas-videos');
+    console.log('[DIMAS] File size:', req.file.size);
+    console.log('[DIMAS] File type:', req.file.mimetype);
+
     const fileBuffer = await fs.promises.readFile(req.file.path);
 
     const { data, error } = await supabase.storage
@@ -92,6 +112,8 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
       });
 
     if (error) throw error;
+
+    console.log('[DIMAS] Upload successful:', data.path);
 
     return res.json({
       success: true,
@@ -106,12 +128,13 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Supabase upload error:', {
+    console.error('[DIMAS] Supabase upload error:', {
       message: error.message,
       status: error.status,
       code: error.code,
       details: error.details,
-      hint: error.hint
+      hint: error.hint,
+      name: error.name
     });
 
     return res.status(500).json({
@@ -127,6 +150,8 @@ app.post('/api/upload', upload.single('video'), async (req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  console.error('[DIMAS] Request error:', err.message);
+
   res.status(400).json({
     success: false,
     message: err.message
@@ -134,5 +159,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`DIMAS backend running on port ${PORT}`);
+  console.log(`[DIMAS] Backend running on port ${PORT}`);
 });
